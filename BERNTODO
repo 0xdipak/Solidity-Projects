@@ -1,0 +1,53 @@
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+contract BernTodo {
+
+    struct Task {
+        uint256 id;
+        string name;
+        string date;
+    }
+
+    address owner;
+
+    Task task;
+
+    mapping(uint256 => Task) tasks;
+    uint256 taskId = 1;
+
+    modifier checckId(uint256 id) {
+        require(id != 0 && id < taskId, "Invalid Id");
+        _;
+    }
+
+    constructor () {
+        owner = msg.sender;
+    }
+
+    function createTask(string calldata _taskName, string calldata _date) public {
+        tasks[taskId] = Task(taskId, _taskName, _date);
+        taskId++;
+    }
+
+    function updateTask(uint256 _taskId, string calldata _taskName, string calldata _date) checckId(_taskId) public {
+        tasks[_taskId] = Task(_taskId, _taskName, _date);
+    }
+
+    function allTasks() public view returns(Task[] memory) {
+        Task[] memory taskList = new Task[](taskId - 1);
+        for(uint256 i = 0; i < taskId -1; i++) {
+            taskList[i] = tasks[i+1];
+        }
+        return taskList;
+    }
+
+    function viewTask(uint256 _taskId) checckId(_taskId) public view returns(Task memory) {
+        return tasks[_taskId];
+    }
+
+    function deleteTask(uint256 _taskId) checckId(_taskId) public {
+        delete tasks[_taskId];
+    }
+}
